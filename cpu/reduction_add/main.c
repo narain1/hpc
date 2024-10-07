@@ -34,25 +34,24 @@ float avx_add(float *arr, int size) {
 int main() {
     int size = 1024 * 16;
     float *arr = (float *)malloc(sizeof(float) * size);
-    clock_t start, end;
+    struct timespec start, end;
     double time_spent;
 
     for (int i=0; i<size; i++)
         arr[i] = (float)rand() / RAND_MAX;
     
-    start = clock();
+    clock_gettime(CLOCK_MONOTONIC, &start); 
     float sum = add(arr, size);
-    end = clock();
+    clock_gettime(CLOCK_MONOTONIC, &end);
 
-    time_spent = (double)(end - start) / CLOCKS_PER_SEC;
-    printf("sum = %f, time spend: %f\n", sum, time_spent);
+    time_spent = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec);
+    printf("sum = %f, time spend: %f ns\n", sum, time_spent);
 
-    start = clock();
+    clock_gettime(CLOCK_MONOTONIC, &start);
     sum = avx_add(arr, size);
-    end = clock();
+    clock_gettime(CLOCK_MONOTONIC, &end);
 
-    time_spent = (double)(end - start) / CLOCKS_PER_SEC;
-    printf("avx sum = %f, time spend: %f\n", sum, time_spent);
-    printf("%f\n", arr[0]);
+    time_spent = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec);
+    printf("avx sum = %f, time spend: %f ns\n", sum, time_spent);
 
 }

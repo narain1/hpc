@@ -7,7 +7,7 @@
 // Function to find the maximum value using AVX
 float avx_max(const float* arr, size_t size) {
     // Initialize max value to the smallest possible float
-    __m256 max_val = _mm256_set1_ps(FLT_MIN);
+    __m256 max_val = _mm256_set1_ps(-FLT_MAX);
     
     size_t i;
     
@@ -53,19 +53,20 @@ int main() {
     for (int i=0; i<size; i++)
         data[i] = (float)rand() / RAND_MAX;
      
-    clock_t start = clock();
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
     float max_value = max(data, size);
-    clock_t end = clock();
+    clock_gettime(CLOCK_MONOTONIC, &end);
 
-    double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
-    printf("Max value: %f, time : %f\n", max_value, end - time_spent);
+    double time_spent = (end.tv_sec - start.tv_sec) * 1e6 + (end.tv_nsec - start.tv_nsec);
+    printf("Max value: %f, time : %f ns\n", max_value, time_spent);
     
-    start = clock();
+    clock_gettime(CLOCK_MONOTONIC, &start);
     max_value = avx_max(data, size);
-    end = clock();
+    clock_gettime(CLOCK_MONOTONIC, &end);
 
-    time_spent = (double)(end - start) / CLOCKS_PER_SEC;
-    printf("Max value: %f, time : %f\n", max_value, end - time_spent);
+    time_spent = (end.tv_sec - start.tv_sec) * 1e6 + (end.tv_nsec - start.tv_nsec);
+    printf("Max value: %f, time : %f ns\n", max_value, time_spent);
     
     return 0;
 }
